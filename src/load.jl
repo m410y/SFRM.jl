@@ -2,7 +2,7 @@ function load(io::IO)
     header = read_header(io)
     parsed = parse_header(header)
     image = read_image(io, parsed)
-    parsed["IMG"] = image
+    parsed["IMG"] = Origin(0)(transpose(reverse(image, dims=2)))
     parsed
 end
 
