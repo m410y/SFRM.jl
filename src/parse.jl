@@ -48,3 +48,8 @@ const SPECIFIC_PARSERS = Dict(
     "LOWTEMP" => parse_lowtemp,
     "CFR" => parse_cfr
 )
+
+function parse_header_key(header::AbstractDict, key::AbstractString)
+    parser = key in keys(SPECIFIC_PARSERS) ? SPECIFIC_PARSERS[key] : parse_default
+    header[key] = parser(header[key])
+end

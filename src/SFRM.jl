@@ -8,9 +8,8 @@ using Printf
 
 include("utils.jl")
 include("defines.jl")
-include("parsers.jl")
-include("header.jl")
-include("decompress.jl")
+include("parse.jl")
+include("read.jl")
 include("compress.jl")
 include("load.jl")
 
