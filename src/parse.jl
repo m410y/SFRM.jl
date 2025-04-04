@@ -51,5 +51,32 @@ const SPECIFIC_PARSERS = Dict(
 
 function parse_header_key(header::AbstractDict, key::AbstractString)
     parser = key in keys(SPECIFIC_PARSERS) ? SPECIFIC_PARSERS[key] : parse_default
-    header[key] = parser(header[key])
+    parser(header[key])
+end
+
+Base.@kwdef struct HeaderParser <: AbstractDict
+    raw::Dict = Dict()
+    parsed::Dict = Dict()
+end
+
+Base.haskey(hp::HeaderParser) = haskey(hp.raw) || haskey(hp.parsed)
+
+function Base.setindex!(hp::HeaderParser, value::AbstractString, key)
+    if haskey(hp.raw, key)
+        hp.raw[key] *= value
+    else
+        hp.raw[key] = value
+    end
+end
+
+function Base.getindex(hp::HeaderParser, key)
+    if haskey(hp.parsed, key)
+        return parsed[key]
+    end
+    parsed[key] = parse_header_key(raw, key)
+end
+
+function merge!(hp::HeaderParser, others::HeaderParser...)
+    merge!(hp.raw, others.raw)
+    merge!(hp.parsed, others.parsed)
 end
