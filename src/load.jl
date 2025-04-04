@@ -7,8 +7,8 @@ end
 
 function read_blocks(io::IO, blocks::Integer)
     lines = div(BLOCK_SIZE * blocks, LINE_LEN)
-    header = HeaderParser()
-    for _ in 1:lines
+    header = HeaderParser(lines)
+    for _ = 1:lines
         key, value = read_line(io::IO)
         key = String(rstrip(key))
         header[key] = value
@@ -23,15 +23,19 @@ function read_image(io::IO, header::AbstractDict)
     compressed = if format == 86
         BrukerImage86(
             read_aligned_array(io, unsigned_integer(header["NPIXELB"]), rows * cols),
-            String(read_aligned_array(io, UInt8, 16 * header["NOVERFL"]))
+            String(read_aligned_array(io, UInt8, 16 * header["NOVERFL"])),
         )
     elseif format == 100
         BrukerImage100(
             read_aligned_array(io, unsigned_integer(header["NPIXELB"][1]), rows * cols),
-            read_aligned_array(io, signed_integer(header["NPIXELB"][2]), header["NOVERFL"][1]),
+            read_aligned_array(
+                io,
+                signed_integer(header["NPIXELB"][2]),
+                header["NOVERFL"][1],
+            ),
             read_aligned_array(io, UInt16, header["NOVERFL"][2]),
             read_aligned_array(io, Int32, header["NOVERFL"][3]),
-            header["NEXP"][3]
+            header["NEXP"][3],
         )
     else
         error("Unknown sfrm format: $(format)")
@@ -44,14 +48,15 @@ function read_image(io::IO, header::AbstractDict)
             image = image * slope + offset
         end
     end
-    Origin(0)(transpose(reverse(reshape(image, cols, rows), dims=2)))
+    Origin(0)(transpose(reverse(reshape(image, cols, rows), dims = 2)))
 end
 
 function load(io::IO)
     header = read_blocks(io, BLOCKS_MIN)
     merge!(header, read_blocks(io, header["HDRBLKS"] - BLOCKS_MIN))
     img = read_image(io, header)
-    ImageMeta(img,
+    ImageMeta(
+        img,
         format = parsed["FORMAT"],
         type = parsed["TYPE"],
         ncounts = parsed["NCOUNTS"][1],
@@ -67,7 +72,7 @@ function load(io::IO)
         axis = parsed["AXIS"],
         increment = parsed["INCREME"],
         pixel = 5120 / parsed["NROWS"][1] / parsed["DETTYPE"][2],
-        temperature = haskey(parsed, "TEMP") ? parsed["TEMP"][1] : missing
+        temperature = haskey(parsed, "TEMP") ? parsed["TEMP"][1] : missing,
     )
 end
 

@@ -13,8 +13,8 @@ const KEY_LEN = 8
 const DATA_ALIGNMENT = 16
 
 include("utils.jl")
-include("defines.jl")
 include("parse.jl")
+include("header.jl")
 include("compress.jl")
 include("load.jl")
 

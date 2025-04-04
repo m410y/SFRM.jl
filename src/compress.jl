@@ -3,7 +3,7 @@ struct BrukerImage86{D<:Unsigned}
     over::String
 end
 
-struct BrukerImage100{D<:Unsigned,U<:Signed} 
+struct BrukerImage100{D<:Unsigned,U<:Signed}
     data::Vector{D}
     under::Vector{U}
     over1::Vector{UInt16}
@@ -25,7 +25,7 @@ end
 
 function decompress(comp::BrukerImage86)
     img = Int32.(comp.data)
-    for i in 1:sizeof(comp.over)/16
+    for i = 1:sizeof(comp.over)/16
         val = parse(Int32, comp.over[i:i+7])
         pos = parse(Int, comp.over[i+8:i+15])
         img[pos] = val
@@ -33,7 +33,12 @@ function decompress(comp::BrukerImage86)
     img
 end
 
-function compress_100(img::AbstractArray{T}; dtype = UInt8, utype = Int8, baseline = 64) where {T<:Integer}
+function compress_100(
+    img::AbstractArray{T};
+    dtype = UInt8,
+    utype = Int8,
+    baseline = 64,
+) where {T<:Integer}
     data = zeros(dtype, length(img))
     under = utype[]
     over1 = UInt16[]
@@ -59,14 +64,14 @@ end
 function decompress(comp::BrukerImage100)
     img = Int32.(comp.data)
     if !isempty(comp.over1)
-        img[img .== typemax(UInt8)] = comp.over1
+        img[img.==typemax(UInt8)] = comp.over1
     end
     if !isempty(comp.over2)
-        img[img .== typemax(UInt16)] = comp.over2
+        img[img.==typemax(UInt16)] = comp.over2
     end
     if !isempty(comp.under)
         img .+= comp.baseline
-        img[img .== comp.baseline] = comp.under
+        img[img.==comp.baseline] = comp.under
     end
     img
 end
