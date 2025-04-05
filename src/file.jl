@@ -1,6 +1,5 @@
 struct SiemensFrame
     image::AbstractArray
-    format::Integer
     type::AbstractString
     filename::AbstractString
     created::DateTime
@@ -12,12 +11,10 @@ struct SiemensFrame
     distance::Number
     axis::Integer
     increment::Number
-    pixel::Number
 end
 
 SiemensFrame(image::AbstractArray, header) = SiemensFrame(
     image,
-    header["FORMAT"],
     header["TYPE"],
     header["FILENAM"],
     header["CREATED"],
@@ -29,5 +26,25 @@ SiemensFrame(image::AbstractArray, header) = SiemensFrame(
     10 * header["DISTANC"][2],
     header["AXIS"],
     header["INCREME"],
-    5120 / header["NROWS"][1] / header["DETTYPE"][2],
 )
+
+function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
+    println(io, "SiemensFrame:")
+    println(io, "  ", summary(sfrm.image))
+    println(io, "  general:")
+    println(io, "    type: ", sfrm.type)
+    println(io, "    filename: ", sfrm.filename)
+    println(io, "    created: ", sfrm.created)
+    println(io, "  setting:")
+    println(io, "    time: ", sfrm.time, " s")
+    println(io, "    distance: ", sfrm.distance, " mm")
+    println(io, "    angles: ", sfrm.angles)
+    if sfrm.increment != 0
+        println(io, "    axis: ", sfrm.axis)
+        println(io, "    increment: ", sfrm.increment)
+    end
+    println(io, "  source:")
+    println(io, "    target: ", sfrm.target)
+    println(io, "    voltage: ", sfrm.voltage, " kV")
+    print(io, "    current: ", sfrm.current, " mA")
+end
