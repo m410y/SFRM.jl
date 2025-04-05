@@ -13,6 +13,9 @@ function signed_integer(bpp::Integer)
 end
 
 function read_aligned_array(io::IO, type::Type{<:Integer}, length::Integer)
+    if length ≤ 0
+        return type[]
+    end
     data = zeros(type, length)
     read!(io, data)
     skip(io, -rem(sizeof(data), DATA_ALIGNMENT, RoundUp))

@@ -6,13 +6,11 @@ version = "0.1.0"
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-ImageMetadata = "bc367c6b-8a6b-528e-b4bd-a4b897500b49"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 Dates = "1.11.0"
 FileIO = "1.16.6"
-ImageMetadata = "0.9.10"
 OffsetArrays = "1.15.0"
 Printf = "1.11.0"
