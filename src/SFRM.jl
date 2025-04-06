@@ -16,6 +16,6 @@ include("parse.jl")
 include("compress.jl")
 include("file.jl")
 include("load.jl")
-include("save.jl")
+# include("save.jl")
 
 end # module SFRM
