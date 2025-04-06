@@ -9,6 +9,7 @@ struct SiemensFrame
     voltage::Number
     current::Number
     distance::Number
+    wavelengths::AbstractVector
     axis::Integer
     increment::Number
 end
@@ -24,6 +25,7 @@ SiemensFrame(image::AbstractArray, header) = SiemensFrame(
     header["SOURCEK"],
     header["SOURCEM"],
     10 * header["DISTANC"][2],
+    header["WAVELEN"],
     header["AXIS"],
     header["INCREME"],
 )
@@ -45,6 +47,7 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     end
     println(io, "  source:")
     println(io, "    target: ", sfrm.target)
+    println(io, "    wavelengths: ", sfrm.wavelengths, " Å")
     println(io, "    voltage: ", sfrm.voltage, " kV")
     print(io, "    current: ", sfrm.current, " mA")
 end

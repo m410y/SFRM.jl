@@ -21,7 +21,7 @@ end
 
 function parse_created(line::AbstractString)
     date, time = split(line)
-    DateTime(Date(date, dateformat"d-u-y"), Time(time))
+    DateTime(Date(date, dateformat"d-u-y"), Time(time, dateformat"HH:MM:SS"))
 end
 
 function parse_cfr(line::AbstractString)
