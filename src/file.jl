@@ -38,10 +38,10 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     println(io, "  setting:")
     println(io, "    time: ", sfrm.time, " s")
     println(io, "    distance: ", sfrm.distance, " mm")
-    println(io, "    angles: ", sfrm.angles)
+    println(io, "    angles: ", join(sfrm.angles, "°, "), "°")
     if sfrm.increment != 0
         println(io, "    axis: ", sfrm.axis)
-        println(io, "    increment: ", sfrm.increment)
+        println(io, "    increment: ", sfrm.increment, "°")
     end
     println(io, "  source:")
     println(io, "    target: ", sfrm.target)
