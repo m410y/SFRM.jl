@@ -44,16 +44,16 @@ function compress_100(
     over1 = UInt16[]
     over2 = Int32[]
     for (pos, val) in enumerate(img)
-        if val < baseline
+        if val ≤ baseline
             push!(under, val)
             data[pos] = 0
             continue
         end
         val -= baseline
         data[pos] = clamp(val, dtype)
-        if val != clamp(val, dtype)
+        if val ≥ typemax(dtype)
             push!(over1, clamp(val, UInt16))
-            if val != clamp(val, UInt16)
+            if val ≥ typemax(UInt16)
                 push!(over2, val)
             end
         end

@@ -49,16 +49,23 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     print(io, "    current: ", sfrm.current, " mA")
 end
 
-function issamesetting(sfrm1::SiemensFrame, sfrm2::SiemensFrame; angle = 1e-4, distance = 1e-3, voltage = 1e-3, current = 1e-2)
+function issamesetting(
+    sfrm1::SiemensFrame,
+    sfrm2::SiemensFrame;
+    angle = 1e-4,
+    distance = 1e-3,
+    voltage = 1e-3,
+    current = 1e-2,
+)
     size(sfrm1.image) == size(sfrm2.image) &&
-    sfrm1.type == sfrm2.type &&
-    sfrm1.target == sfrm2.target &&
-    sfrm1.axis == sfrm2.axis &&
-    all(isapprox.(sfrm1.angles, sfrm2.angles, atol = angle)) &&
-    isapprox(sfrm1.distance, sfrm2.distance, atol = distance) &&
-    isapprox(sfrm1.increment, sfrm2.increment, atol = angle) &&
-    isapprox(sfrm1.voltage, sfrm2.voltage, atol = voltage) &&
-    isapprox(sfrm1.current, sfrm2.current, atol = current)
+        sfrm1.type == sfrm2.type &&
+        sfrm1.target == sfrm2.target &&
+        sfrm1.axis == sfrm2.axis &&
+        all(isapprox.(sfrm1.angles, sfrm2.angles, atol = angle)) &&
+        isapprox(sfrm1.distance, sfrm2.distance, atol = distance) &&
+        isapprox(sfrm1.increment, sfrm2.increment, atol = angle) &&
+        isapprox(sfrm1.voltage, sfrm2.voltage, atol = voltage) &&
+        isapprox(sfrm1.current, sfrm2.current, atol = current)
 end
 
 function Base.:+(sfrm1::SiemensFrame, sfrm2::SiemensFrame)
@@ -70,21 +77,21 @@ function Base.:+(sfrm1::SiemensFrame, sfrm2::SiemensFrame)
         _same_beginning(sfrm1.filename, sfrm2.filename) * "sum.sfrm",
         min(sfrm1.created, sfrm2.created),
         sfrm1.time + sfrm2.time,
-        sfrm1.angles == sfrm2.angles ? sfrm1.angles : sfrm1.angles * k + sfrm2.angles * (1 - k),
+        _weighted_sum(sfrm1.angles, sfrm2.angles, k),
         sfrm1.target,
-        sfrm1.voltage == sfrm2.voltage ? sfrm1.voltage : sfrm1.voltage * k + sfrm2.voltage * (1 - k),
-        sfrm1.current == sfrm2.current ? sfrm1.current : sfrm1.current * k + sfrm2.current * (1 - k),
-        sfrm1.distance == sfrm2.distance ? sfrm1.distance : sfrm1.distance * k + sfrm2.distance * (1 - k),
+        _weighted_sum(sfrm1.voltage, sfrm2.voltage, k),
+        _weighted_sum(sfrm1.current, sfrm2.current, k),
+        _weighted_sum(sfrm1.distance, sfrm2.distance, k),
         sfrm1.axis,
-        sfrm1.increment == sfrm2.increment ? sfrm1.increment : sfrm1.increment * k + sfrm2.increment * (1 - k),
+        _weighted_sum(sfrm1.increment, sfrm2.increment, k),
     )
 end
 
+_weighted_sum(x, y, k) = x == y ? x : k * x + (1 - k) * y
+
 function _same_beginning(str1::String, str2::String)
-    for i in 1:min(length(str1), length(str2))
-        if str1[i] != str2[i]
-            return String(str1[1:i-1])
-        end
+    i = findfirst(collect(zip(str1, str2))) do (c1, c2)
+        c1 != c2
     end
-    ""
+    splitext(isnothing(i) ? str1 : str1[1:i-1])[1]
 end

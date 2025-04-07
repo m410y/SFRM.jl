@@ -22,6 +22,6 @@ function read_aligned_array(io::IO, type::Type{<:Integer}, length::Integer)
     data
 end
 
-function write_aligned(io::IO, arr::AbstractArray)
+function write_aligned_array(io::IO, arr::AbstractArray)
     write(io, arr, zeros(UInt8, -rem(sizeof(arr), DATA_ALIGNMENT, RoundUp)))
 end
