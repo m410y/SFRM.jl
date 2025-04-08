@@ -21,13 +21,13 @@ SiemensFrame(image::AbstractArray, header) = SiemensFrame(
     header["FILENAM"],
     header["CREATED"],
     header["CUMULAT"],
-    header["ANGLES"],
+    deg2rad(header["ANGLES"]),
     header["TARGET"],
     header["SOURCEK"],
     header["SOURCEM"],
     10 * header["DISTANC"][2],
     header["AXIS"],
-    header["INCREME"],
+    deg2rad(header["INCREME"]),
 )
 
 function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
@@ -40,10 +40,10 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     println(io, "  setting:")
     println(io, "    time: ", sfrm.time, " s")
     println(io, "    distance: ", sfrm.distance, " mm")
-    println(io, "    angles: ", join(sfrm.angles, "°, "), "°")
+    println(io, "    angles: ", join(rad2deg.(sfrm.angles), "°, "), "°")
     if sfrm.increment != 0
         println(io, "    axis: ", sfrm.axis)
-        println(io, "    increment: ", sfrm.increment, "°")
+        println(io, "    increment: ", rad2deg(sfrm.increment), "°")
     end
     println(io, "  source:")
     println(io, "    target: ", sfrm.target)
@@ -54,7 +54,7 @@ end
 function issamesetting(
     sfrm1::SiemensFrame,
     sfrm2::SiemensFrame;
-    angle = 1e-4,
+    angle = 1e-5,
     distance = 1e-3,
     voltage = 1e-3,
     current = 1e-2,
