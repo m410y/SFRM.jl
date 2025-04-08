@@ -24,13 +24,13 @@ mktemp() do fpath, _
         basename(fpath),
         now(),
         600 * rand(),
-        360 * rand(4),
+        2pi * rand(4),
         "Mo",
         100 * rand(),
         10 * rand(),
         200 * rand(),
         2 + rand(Bool),
-        360 * rand(),
+        2pi * rand(),
     )
     save(fpath, sfrm)
     load(fpath)
