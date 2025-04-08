@@ -21,7 +21,7 @@ SiemensFrame(image::AbstractArray, header) = SiemensFrame(
     header["FILENAM"],
     header["CREATED"],
     header["CUMULAT"],
-    deg2rad(header["ANGLES"]),
+    deg2rad.(header["ANGLES"]),
     header["TARGET"],
     header["SOURCEK"],
     header["SOURCEM"],
