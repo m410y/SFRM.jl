@@ -1,5 +1,3 @@
-export SiemensFrame, issamesetting
-
 struct SiemensFrame
     image::AbstractArray
     type::AbstractString
@@ -21,13 +19,13 @@ SiemensFrame(image::AbstractArray, header) = SiemensFrame(
     header["FILENAM"],
     header["CREATED"],
     header["CUMULAT"],
-    deg2rad.(header["ANGLES"]),
+    header["ANGLES"],
     header["TARGET"],
     header["SOURCEK"],
     header["SOURCEM"],
     10 * header["DISTANC"][2],
     header["AXIS"],
-    deg2rad(header["INCREME"]),
+    header["INCREME"],
 )
 
 function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
@@ -40,10 +38,10 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     println(io, "  setting:")
     println(io, "    time: ", sfrm.time, " s")
     println(io, "    distance: ", sfrm.distance, " mm")
-    println(io, "    angles: ", join(rad2deg.(sfrm.angles), "°, "), "°")
+    println(io, "    angles: ", join(sfrm.angles, "°, "), "°")
     if sfrm.increment != 0
         println(io, "    axis: ", sfrm.axis)
-        println(io, "    increment: ", rad2deg(sfrm.increment), "°")
+        println(io, "    increment: ", sfrm.increment, "°")
     end
     println(io, "  source:")
     println(io, "    target: ", sfrm.target)
@@ -54,7 +52,7 @@ end
 function issamesetting(
     sfrm1::SiemensFrame,
     sfrm2::SiemensFrame;
-    angle = 1e-5,
+    angle = 1e-4,
     distance = 1e-3,
     voltage = 1e-3,
     current = 1e-2,
@@ -79,7 +77,7 @@ function Base.:+(sfrm1::SiemensFrame, sfrm2::SiemensFrame)
         _same_beginning(sfrm1.filename, sfrm2.filename) * "sum.sfrm",
         min(sfrm1.created, sfrm2.created),
         sfrm1.time + sfrm2.time,
-        _weighted_sum(sfrm1.angles, sfrm2.angles, k),
+        _weighted_sum.(sfrm1.angles, sfrm2.angles, k),
         sfrm1.target,
         _weighted_sum(sfrm1.voltage, sfrm2.voltage, k),
         _weighted_sum(sfrm1.current, sfrm2.current, k),
