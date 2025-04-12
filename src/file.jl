@@ -53,7 +53,7 @@ function Base.setproperty!(sfrm::SiemensFrame, name::Symbol, x)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
-    println(io, "SiemensFrame:")
+    println(io, summary(sfrm), ":")
     println(io, "  ", summary(sfrm.image))
     println(io, "  general:")
     println(io, "    type: ", sfrm.type)

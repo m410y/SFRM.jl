@@ -53,4 +53,9 @@ function load(io::IO)
 end
 
 load(path::AbstractString) = open(load, path, "r")
-load(f::File{format"SFRM"}) = load(open(f).io)
+
+function load(f::File{format"SFRM"})
+    open(f, "r") do s
+        load(s.io)
+    end
+end

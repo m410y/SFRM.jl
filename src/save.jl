@@ -163,7 +163,8 @@ function save(path::AbstractString, sfrm::SiemensFrame)
 end
 
 function save(f::File{format"SFRM"}, sfrm::SiemensFrame)
-    s = open(f, "w")
-    save(s.io, sfrm, filename = basename(s.filename))
-    s.filename
+    open(f, "w") do s
+        save(s.io, sfrm, filename = basename(s.filename))
+        s.filename
+    end
 end
