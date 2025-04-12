@@ -17,24 +17,10 @@ include("file.jl")
 include("load.jl")
 include("save.jl")
 
-mktemp() do fpath, _
-    sfrm = SiemensFrame(
-        Origin(0)(clamp.(rand(Int32, 1024, 768), 0, typemax(Int32))),
-        "SCAN FRAME",
-        basename(fpath),
-        now(),
-        600 * rand(),
-        360 * rand(4),
-        "Mo",
-        100 * rand(),
-        10 * rand(),
-        200 * rand(),
-        2 + rand(Bool),
-        360 * rand(),
-    )
-    save(fpath, sfrm)
-    load(fpath)
-    Sys.iswindows() && GC.gc()
-end
+# mktemp() do fpath, _
+#     load(fpath)
+#     save(fpath, sfrm)
+#     Sys.iswindows() && GC.gc()
+# end
 
 end # module SFRM

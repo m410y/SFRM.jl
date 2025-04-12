@@ -15,12 +15,13 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     end
     flat = vec(reverse(transpose(sfrm.image), dims = 2))
     comment = get(hdr, "TITLE", "")
+    comment *= " Created by SFRM.jl"
     if length(comment) < 8 * 72
         comment *= " "^(8 * 72 - length(comment))
     end
     npixelb = get(hdr, "NPIXELB", [1, 1])
-    date_str = Dates.format(sfrm.created, dateformat"d-u-yyyy")
-    time_str = Dates.format(sfrm.created, dateformat"HH:MM:SS")
+    date_str = Dates.format(now(), dateformat"d-u-yyyy")
+    time_str = Dates.format(now(), dateformat"HH:MM:SS")
     cell = get(hdr, "CELL", [1, 1, 1, 90, 90, 90])
     matrix = get(hdr, "MATRIX", [1, 0, 0, 0, 1, 0, 0, 0, 1])
     detpar = get(hdr, "DETPAR", zeros(6))
@@ -31,7 +32,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     comp = compress_100(
         flat,
         dtype = unsigned_integer(npixelb[1]),
-        utype = unsigned_integer(npixelb[2]),
+        utype = signed_integer(npixelb[2]),
         baseline = nexp[3],
     )
     underlen = isempty(comp.under) ? -1 : length(comp.under)
@@ -94,8 +95,12 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     @printf io "TRAILER:%-72d" get(hdr, "TRAILER", 0)
     @printf io "COMPRES:%-72s" get(hdr, "COMPRES", "none")
     @printf io "LINEAR :%-35f %-35f " 1 0
-    @printf io "PHD    :%-35f %-35f " get(hdr, "PHD", zeros(2))
-    @printf io "PREAMP :%-35d %-35d " get(hdr, "PREAMP", [1, 2])...
+    @printf io "PHD    :%-35f %-35f " get(hdr, "PHD", zeros(2))...
+    if haskey(hdr, "PREAMP") && length(hdr["PREAMP"]) > 1
+        @printf io "PREAMP :%-35d %-35d " get["PREAMP"]...
+    else
+        @printf io "PREAMP :%-72d" get(hdr, "PREAMP", 1)
+    end
     @printf io "CORRECT:%-72s" get(hdr, "CORRECT", "")
     @printf io "WARPFIL:%-72s" get(hdr, "WARPFIL", "")
     if haskey(hdr, "WAVELEN") && length(hdr["WAVELEN"]) > 3
@@ -106,7 +111,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     @printf io "MAXXY  :%-35f %-35f " get(hdr, "MAXXY", zeros(2))...
     @printf io "AXIS   :%-72d" get(hdr, "AXIS", 1)
     @printf io "ENDING :%-17f %-17f %-17f %-17f " get(hdr, "ENDING", zeros(4))...
-    @printf io "DETPAR :%-13f %-13f %-13f %-13f %-13f   " detpar[1:6]...
+    @printf io "DETPAR :%-13f %-13f %-13f %-13f %-13f   " detpar[1:5]...
     @printf io "DETPAR :%-72f" detpar[6]
     @printf io "LUT    :%-72s" get(hdr, "LUT", "lut")
     @printf io "DISPLIM:%-35f %-35f " get(hdr, "DISPLIM", zeros(2))...
@@ -114,7 +119,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     @printf io "ROTATE :%-72d" get(hdr, "ROTATE", 0)
     @printf io "BITMASK:%-72s" get(hdr, "BITMASK", "\$NULL")
     @printf io "OCTMASK:%-11d %-11d %-11d %-11d %-11d %-11d " octmask[1:6]...
-    @printf io "OCTMASK:%-35d %-35d " octmask[7:8]
+    @printf io "OCTMASK:%-35d %-35d " octmask[7:8]...
     @printf io "ESDCELL:%-13f %-13f %-13f %-13f %-13f   " esdcell[1:5]...
     @printf io "ESDCELL:%-72f" esdcell[6]
     @printf io "DETTYPE:%-20s %-11f %-11f %-1d %-11f %-11f %-1d" get(
@@ -123,7 +128,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
         ["virtual", zeros(6)...],
     )...
     @printf io "NEXP   :%-13d %-13d %-13d %-13d %-13d   " nexp[1:5]...
-    @printf io "CCDPARM:%-13f %-13f %-13f %-13f %-13f   " get(
+    @printf io "CCDPARM:%-13f %-13f %-13f %-13f %-15f " get(
         hdr,
         "CCDPARM",
         [0, 1, 1, 0, 65535],
@@ -134,7 +139,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     @printf io "CSIZE  :%-72s" get(hdr, "CSIZE", "?")
     @printf io "DNSMET :%-72s" get(hdr, "DNSMET", "?")
     @printf io "DARK   :%-72s" get(hdr, "DARK", "?")
-    @printf io "AUTORNG:%-13f %-13f %-13f %-13f %-13f   " get(hdr, "AUTORNG", zeros(5))...
+    @printf io "AUTORNG:%-13f %-13f %-13f %-13f %-15f " get(hdr, "AUTORNG", zeros(5))...
     @printf io "ZEROADJ:%-17f %-17f %-17f %-17f " get(hdr, "ZEROADJ", zeros(4))...
     @printf io "XTRANS :%-23f %-23f %-23f " get(hdr, "XTRANS", zeros(3))...
     @printf io "HKL&XY :%-13f %-13f %-13f %-13f %-13f   " get(hdr, "HKL&XY", zeros(5))...
@@ -158,7 +163,7 @@ function save(path::AbstractString, sfrm::SiemensFrame)
 end
 
 function save(f::File{format"SFRM"}, sfrm::SiemensFrame)
-    open(f, "w") do s
-        save(s.io, sfrm, filename = s.filename)
-    end
+    s = open(f, "w")
+    save(s.io, sfrm, filename = basename(s.filename))
+    s.filename
 end

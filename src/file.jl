@@ -29,10 +29,10 @@ function Base.propertynames(::SiemensFrame)
 end
 
 function Base.getproperty(sfrm::SiemensFrame, name::Symbol)
-    if haskey(name, HEADER_KEYS)
+    if haskey(HEADER_KEYS, name)
         key = HEADER_KEYS[name]
         sfrm.header[key]
-    elseif haskey(name, HEADER_KEYS_INDEXED)
+    elseif haskey(HEADER_KEYS_INDEXED, name)
         key, idx = HEADER_KEYS_INDEXED[name]
         sfrm.header[key][idx]
     else
