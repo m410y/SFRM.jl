@@ -1,3 +1,5 @@
+export SiemensFrame
+
 struct SiemensFrame
     image::AbstractArray
     header::AbstractDict
