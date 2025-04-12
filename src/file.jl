@@ -24,6 +24,7 @@ const HEADER_KEYS_INDEXED = IdDict(
     :omega => ("ANGLES", 2),
     :phi => ("ANGLES", 3),
     :chi => ("ANGLES", 4)
+    :pix512percm => ("DETTYPE", 2)
 )
 
 function Base.propertynames(::SiemensFrame)
