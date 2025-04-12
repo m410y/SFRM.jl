@@ -29,6 +29,8 @@ const HEADER_KEYS_INDEXED = IdDict(
     :lambdaKα1 => ("WAVELEN", 2),
     :lambdaKα2 => ("WAVELEN", 3),
     :lambdaKβ => ("WAVELEN", 4),
+    :xcenter => ("CENTER", 1),
+    :ycenter => ("CENTER", 2)
 )
 
 function Base.propertynames(::SiemensFrame)
