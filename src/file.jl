@@ -15,7 +15,7 @@ const HEADER_KEYS = IdDict(
     :increment => "INCREME",
     :target => "TARGET",
     :voltage => "SOURCEK",
-    :current => "SOURCEM"
+    :current => "SOURCEM",
 )
 
 const HEADER_KEYS_INDEXED = IdDict(
@@ -23,8 +23,12 @@ const HEADER_KEYS_INDEXED = IdDict(
     :tth => ("ANGLES", 1),
     :omega => ("ANGLES", 2),
     :phi => ("ANGLES", 3),
-    :chi => ("ANGLES", 4)
-    :pix512percm => ("DETTYPE", 2)
+    :chi => ("ANGLES", 4),
+    :pix512percm => ("DETTYPE", 2),
+    :lambdaKα => ("WAVELEN", 1),
+    :lambdaKα1 => ("WAVELEN", 2),
+    :lambdaKα2 => ("WAVELEN", 3),
+    :lambdaKβ => ("WAVELEN", 4),
 )
 
 function Base.propertynames(::SiemensFrame)
