@@ -1,32 +1,56 @@
 struct SiemensFrame
     image::AbstractArray
-    type::AbstractString
-    filename::AbstractString
-    created::DateTime
-    time::Number
-    angles::AbstractVector
-    target::AbstractString
-    voltage::Number
-    current::Number
-    distance::Number
-    axis::Integer
-    increment::Number
+    header::AbstractDict
 end
 
-SiemensFrame(image::AbstractArray, header) = SiemensFrame(
-    image,
-    header["TYPE"],
-    header["FILENAM"],
-    header["CREATED"],
-    header["CUMULAT"],
-    header["ANGLES"],
-    header["TARGET"],
-    header["SOURCEK"],
-    header["SOURCEM"],
-    10 * header["DISTANC"][2],
-    header["AXIS"],
-    header["INCREME"],
+const HEADER_KEYS = IdDict(
+    :type => "TYPE",
+    :filename => "FILENAM",
+    :created => "CREATED",
+    :time => "CUMULAT",
+    :angles => "ANGLES",
+    :axis => "AXIS",
+    :increment => "INCREME",
+    :target => "TARGET",
+    :voltage => "SOURCEK",
+    :current => "SOURCEM"
 )
+
+const HEADER_KEYS_INDEXED = IdDict(
+    :distance => ("DISTANC", 2),
+    :tth => ("ANGLES", 1),
+    :omega => ("ANGLES", 2),
+    :phi => ("ANGLES", 3),
+    :chi => ("ANGLES", 4)
+)
+
+function Base.propertynames(::SiemensFrame)
+    union(keys(HEADER_KEYS), keys(HEADER_KEYS_INDEXED), fieldnames(SiemensFrame))
+end
+
+function Base.getproperty(sfrm::SiemensFrame, name::Symbol)
+    if haskey(name, HEADER_KEYS)
+        key = HEADER_KEYS[name]
+        sfrm.header[key]
+    elseif haskey(name, HEADER_KEYS_INDEXED)
+        key, idx = HEADER_KEYS_INDEXED[name]
+        sfrm.header[key][idx]
+    else
+        getfield(sfrm, name)
+    end
+end
+
+function Base.setproperty!(sfrm::SiemensFrame, name::Symbol, x)
+    if haskey(name, HEADER_KEYS)
+        key = HEADER_KEYS[name]
+        sfrm.header[key] = x
+    elseif haskey(name, HEADER_KEYS_INDEXED)
+        key, idx = HEADER_KEYS_INDEXED[name]
+        sfrm.header[key][idx] = x
+    else
+        setfield!(sfrm, name, x)
+    end
+end
 
 function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     println(io, "SiemensFrame:")
@@ -47,51 +71,4 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     println(io, "    target: ", sfrm.target)
     println(io, "    voltage: ", sfrm.voltage, " kV")
     print(io, "    current: ", sfrm.current, " mA")
-end
-
-function issamesetting(
-    sfrm1::SiemensFrame,
-    sfrm2::SiemensFrame;
-    angle = 1e-4,
-    distance = 1e-3,
-    voltage = 1e-3,
-    current = 1e-2,
-)
-    size(sfrm1.image) == size(sfrm2.image) &&
-        sfrm1.type == sfrm2.type &&
-        sfrm1.target == sfrm2.target &&
-        sfrm1.axis == sfrm2.axis &&
-        all(isapprox.(sfrm1.angles, sfrm2.angles, atol = angle)) &&
-        isapprox(sfrm1.distance, sfrm2.distance, atol = distance) &&
-        isapprox(sfrm1.increment, sfrm2.increment, atol = angle) &&
-        isapprox(sfrm1.voltage, sfrm2.voltage, atol = voltage) &&
-        isapprox(sfrm1.current, sfrm2.current, atol = current)
-end
-
-function Base.:+(sfrm1::SiemensFrame, sfrm2::SiemensFrame)
-    @assert issamesetting(sfrm1, sfrm2)
-    k = sfrm1.time / (sfrm1.time + sfrm2.time)
-    SiemensFrame(
-        sfrm1.image + sfrm2.image,
-        sfrm1.type,
-        _same_beginning(sfrm1.filename, sfrm2.filename) * "sum.sfrm",
-        min(sfrm1.created, sfrm2.created),
-        sfrm1.time + sfrm2.time,
-        _weighted_sum.(sfrm1.angles, sfrm2.angles, k),
-        sfrm1.target,
-        _weighted_sum(sfrm1.voltage, sfrm2.voltage, k),
-        _weighted_sum(sfrm1.current, sfrm2.current, k),
-        _weighted_sum(sfrm1.distance, sfrm2.distance, k),
-        sfrm1.axis,
-        _weighted_sum(sfrm1.increment, sfrm2.increment, k),
-    )
-end
-
-_weighted_sum(x, y, k) = x == y ? x : k * x + (1 - k) * y
-
-function _same_beginning(str1::String, str2::String)
-    i = findfirst(collect(zip(str1, str2))) do (c1, c2)
-        c1 != c2
-    end
-    splitext(isnothing(i) ? str1 : str1[1:i-1])[1]
 end

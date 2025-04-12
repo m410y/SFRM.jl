@@ -24,39 +24,24 @@ function parse_created(line::AbstractString)
     DateTime(Date(date, dateformat"d-u-yyyy"), Time(time, dateformat"HH:MM:SS"))
 end
 
+function parse_lowtemp(line::AbstractString)
+    parsed = parse_default.(split(line))
+    parsed[1] = Bool(parsed[1])
+    if length(parsed) > 4
+        deleteat!(parsed, 4)
+    end
+    parsed
+end
+
 function parse_cfr(line::AbstractString)
     m = match(r"HDR:(.*)IMG:(.*)", line)
     parse_default.(m.captures)
 end
 
-const SPECIFIC_PARSERS = Dict("CREATED" => parse_created, "CFR" => parse_cfr)
+const SPECIFIC_PARSERS =
+    Dict("CREATED" => parse_created, "LOWTEMP" => parse_lowtemp, "CFR" => parse_cfr)
 
-struct SfrmHeaderParser{K,P,R}
-    parsed::Dict{K,P}
-    raw::Dict{K,R}
-end
-
-SfrmHeaderParser(nblocks::Integer) =
-    SfrmHeaderParser(sizehint!(Dict{String,Any}(), nblocks), Dict{String,Any}())
-
-function Base.setindex!(hp::SfrmHeaderParser, value, key)
-    if haskey(hp.raw, key)
-        hp.raw[key] *= value
-    else
-        hp.raw[key] = value
-    end
-end
-
-function Base.getindex(hp::SfrmHeaderParser, key)
-    get!(hp.parsed, key) do
-        parser = get(SPECIFIC_PARSERS, key, parse_default)
-        parser(hp.raw[key])
-    end
-end
-
-Base.haskey(hp::SfrmHeaderParser, key) = haskey(hp.parsed, key) || haskey(hp.raw, key)
-
-function Base.merge!(hp::SfrmHeaderParser, others::SfrmHeaderParser...)
-    merge!(hp.parsed, getfield.(others, :parsed)...)
-    merge!(hp.raw, getfield.(others, :raw)...)
+function parse_line(key::AbstractString, line::AbstractString)
+    parser = get(SPECIFIC_PARSERS, key, parse_default)
+    parser(line)
 end

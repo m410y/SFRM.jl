@@ -25,9 +25,9 @@ end
 
 function decompress(comp::BrukerImage86)
     img = Int32.(comp.data)
-    for i = 1:sizeof(comp.over)/16
-        val = parse(Int32, comp.over[i:i+7])
-        pos = parse(Int, comp.over[i+8:i+15])
+    for i = 1:(sizeof(comp.over)/16)
+        val = parse(Int32, comp.over[i:(i+7)])
+        pos = parse(Int, comp.over[(i+8):(i+15)])
         img[pos] = val
     end
     img
@@ -64,14 +64,14 @@ end
 function decompress(comp::BrukerImage100)
     img = Int32.(comp.data)
     if !isempty(comp.over1)
-        img[img.==typemax(UInt8)] = comp.over1
+        img[img .== typemax(UInt8)] = comp.over1
     end
     if !isempty(comp.over2)
-        img[img.==typemax(UInt16)] = comp.over2
+        img[img .== typemax(UInt16)] = comp.over2
     end
     if !isempty(comp.under)
         img .+= comp.baseline
-        img[img.==comp.baseline] = comp.under
+        img[img .== comp.baseline] = comp.under
     end
     img
 end

@@ -1,14 +1,14 @@
 function read_header_blocks(io::IO, nblocks::Integer)
-    header = SfrmHeaderParser(nblocks)
+    header = Dict{String,Any}()
     blocks = read(io, BLOCK_SIZE * nblocks)
     for line in eachcol(reshape(blocks, LINE_LEN, :))
         key, value = match(r"(\S+)\s*:(.*)", String(line))
-        header[key] = value
+        header[key] = haskey(header, key) ? header[key] * value : value
     end
     header
 end
 
-function read_image(io::IO, header)
+function read_image(io::IO, header::AbstractDict)
     format = header["FORMAT"]
     rows = header["NROWS"][1]
     cols = header["NCOLS"][1]
@@ -42,8 +42,12 @@ end
 
 function load(io::IO)
     header = read_header_blocks(io, BLOCKS_MIN)
-    header_rem = read_header_blocks(io, header["HDRBLKS"] - BLOCKS_MIN)
-    merge!(header, header_rem)
+    hdrblks = parse_line("HDRBLKS", header["HDRBLKS"])
+    header_rem = read_header_blocks(io, hdrblks - BLOCKS_MIN)
+    mergewith!(*, header, header_rem)
+    for (key, value) in header
+        header[key] = parse_line(key, value)
+    end
     image = read_image(io, header)
     SiemensFrame(image, header)
 end
