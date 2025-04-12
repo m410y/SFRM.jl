@@ -17,10 +17,10 @@ include("file.jl")
 include("load.jl")
 include("save.jl")
 
-# mktemp() do fpath, _
-#     load(fpath)
-#     save(fpath, sfrm)
-#     Sys.iswindows() && GC.gc()
-# end
+mktemp() do fpath, _
+    sfrm = load("data/precompile.sfrm")
+    save(fpath, sfrm)
+    Sys.iswindows() && GC.gc()
+end
 
 end # module SFRM
