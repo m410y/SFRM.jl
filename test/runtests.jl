@@ -3,7 +3,7 @@ using SFRM
 using Dates
 using OffsetArrays
 
-# include("Aqua.jl")
+include("Aqua.jl")
 
 const frames_folder = "./testframes"
 
