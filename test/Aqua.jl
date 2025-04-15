@@ -1,5 +1,3 @@
 using Aqua
 
-@testset "Aqua.jl tests" begin
-    Aqua.test_all(SFRM)
-end
+Aqua.test_all(SFRM)

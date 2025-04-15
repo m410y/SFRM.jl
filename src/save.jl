@@ -157,7 +157,7 @@ end
 
 function save(path::AbstractString, sfrm::SiemensFrame)
     open(path, "w") do io
-        save(io, sfrm)
+        save(io, sfrm, filename = basename(path))
     end
     path
 end
