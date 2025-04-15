@@ -70,7 +70,7 @@ function Base.show(io::IO, ::MIME"text/plain", sfrm::SiemensFrame)
     println(io, "    created: ", sfrm.created)
     println(io, "  setting:")
     println(io, "    time: ", sfrm.time, " s")
-    println(io, "    distance: ", sfrm.distance, " mm")
+    println(io, "    distance: ", sfrm.distance, " сm")
     println(io, "    angles: ", join(sfrm.angles, "°, "), "°")
     if sfrm.increment != 0
         println(io, "    axis: ", sfrm.axis)
