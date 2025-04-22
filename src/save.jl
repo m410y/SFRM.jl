@@ -71,7 +71,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     @printf io "NFRAMES:%-72d" get(hdr, "NFRAMES", 1)
     @printf io "ANGLES :%-17f %-17f %-17f %-17f " get(hdr, "ANGLES", zeros(4))...
     @printf io "NOVER64:%-23d %-23d %-23d " 0 0 0
-    @printf io "NPIXELB:%-35d %-35d " sizeof.(eltype.([comp.data, comp.under]))...
+    @printf io "NPIXELB:%-35d %-35d " sizeof(eltype(comp.data)) sizeof(eltype(comp.under))
     @printf io "NROWS  :%-35d %-35d " size(sfrm.image, 1) 1
     @printf io "NCOLS  :%-35d %-35d " size(sfrm.image, 2) 1
     @printf io "WORDORD:%-72d" 0

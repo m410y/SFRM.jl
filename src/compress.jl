@@ -61,10 +61,10 @@ function compress_100(
     BrukerImage100(data, under, over1, over2, baseline)
 end
 
-function decompress(comp::BrukerImage100)
+function decompress(comp::BrukerImage100{D}) where {D}
     img = Int32.(comp.data)
     if !isempty(comp.over1)
-        img[img .== typemax(UInt8)] = comp.over1
+        img[img .== typemax(D)] = comp.over1
     end
     if !isempty(comp.over2)
         img[img .== typemax(UInt16)] = comp.over2
