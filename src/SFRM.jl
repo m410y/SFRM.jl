@@ -1,7 +1,6 @@
 module SFRM
 
 using FileIO
-using OffsetArrays: Origin
 using Dates
 using Printf
 
