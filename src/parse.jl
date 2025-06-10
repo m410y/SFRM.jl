@@ -1,3 +1,12 @@
+function isunknown(line::AbstractString)
+    any(strip(line) .== [
+        "Unknown",
+        "UNKNOWN",
+        "None",
+        "NONE"
+    ])
+end
+
 function tryparse_number(token::AbstractString)
     parsed = tryparse(Int, token)
     !isnothing(parsed) && return parsed
@@ -42,6 +51,9 @@ const SPECIFIC_PARSERS =
     Dict("CREATED" => parse_created, "LOWTEMP" => parse_lowtemp, "CFR" => parse_cfr)
 
 function parse_line(key::AbstractString, line::AbstractString)
+    if isunknown(line)
+        return nothing
+    end
     parser = get(SPECIFIC_PARSERS, key, parse_default)
     parser(line)
 end
