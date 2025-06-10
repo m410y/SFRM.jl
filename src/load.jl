@@ -2,7 +2,11 @@ function read_header_blocks(io::IO, nblocks::Integer)
     header = Dict{String,Any}()
     blocks = read(io, BLOCK_SIZE * nblocks)
     for line in eachcol(reshape(blocks, LINE_LEN, :))
-        key, value = match(r"(\S+)\s*:(.*)", String(line))
+        m = match(r"(\S+)\s*:(.*)", String(line))
+        if isnothing(m)
+            continue
+        end
+        key, value = m
         header[key] = haskey(header, key) ? header[key] * value : value
     end
     header
