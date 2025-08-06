@@ -1,9 +1,26 @@
-struct BrukerImage86{D<:Unsigned}
+"""
+    AbstractBrukerImage 
+
+Abstract supertipe of all (currently only 2) compressed bruker image types.
+"""
+abstract type AbstractBrukerImage end
+
+"""
+    BrukerImage86{D<:Unsigned} <: AbstractBrukerImage 
+
+Struct that contains raw compressed image data from version 86 sfrm file.
+"""
+struct BrukerImage86{D<:Unsigned} <: AbstractBrukerImage 
     data::Vector{D}
     over::String
 end
 
-struct BrukerImage100{D<:Unsigned,U<:Signed}
+"""
+    BrukerImage100{D<:Unsigned,U<:Signed} <: AbstractBrukerImage 
+
+Struct that contains raw compressed image data from version 100 sfrm file.
+"""
+struct BrukerImage100{D<:Unsigned,U<:Signed} <: AbstractBrukerImage 
     data::Vector{D}
     under::Vector{U}
     over1::Vector{UInt16}
@@ -11,6 +28,11 @@ struct BrukerImage100{D<:Unsigned,U<:Signed}
     baseline::Integer
 end
 
+"""
+    compress_86(img::AbstractArray{T}; dtype = UInt8) where {T<:Integer}
+
+Compresses image to sfrm version 86 format and returns `BrukerImage86`.
+"""
 function compress_86(img::AbstractArray{T}; dtype = UInt8) where {T<:Integer}
     data = zeros(dtype, length(img))
     over = ""
@@ -23,16 +45,11 @@ function compress_86(img::AbstractArray{T}; dtype = UInt8) where {T<:Integer}
     BrukerImage86(data, over)
 end
 
-function decompress(comp::BrukerImage86)
-    img = Int32.(comp.data)
-    for i = 1:(sizeof(comp.over)/16)
-        val = parse(Int32, comp.over[i:(i+7)])
-        pos = parse(Int, comp.over[(i+8):(i+15)])
-        img[pos] = val
-    end
-    img
-end
+"""
+    compress_100(img::AbstractArray; dtype = UInt8, utype = Int8, baseline = 64)
 
+Compresses image to sfrm version 100 format and returns `BrukerImage100`.
+"""
 function compress_100(
     img::AbstractArray{T};
     dtype = UInt8,
@@ -61,6 +78,16 @@ function compress_100(
     BrukerImage100(data, under, over1, over2, baseline)
 end
 
+function decompress(comp::BrukerImage86)
+    img = Int32.(comp.data)
+    for i = 1:(sizeof(comp.over)/16)
+        val = parse(Int32, comp.over[i:(i+7)])
+        pos = parse(Int, comp.over[(i+8):(i+15)])
+        img[pos] = val
+    end
+    img
+end
+
 function decompress(comp::BrukerImage100{D}) where {D}
     img = Int32.(comp.data)
     if !isempty(comp.over1)
@@ -75,3 +102,10 @@ function decompress(comp::BrukerImage100{D}) where {D}
     end
     img
 end
+
+@doc""" 
+    decompress(comp::AbstractBrukerImage)
+
+Return decompressed image from `comp`.
+""" decompress
+
