@@ -1,9 +1,3 @@
-"""
-    read_header_blocks(io::IO, nblocks::Integer)
-
-Read specifically `nblocks` specified with `BLOCK_SIZE` global variable from io
-and returns header dictionary with raw unparsed data.
-"""
 function read_header_blocks(io::IO, nblocks::Integer)
     header = Dict{String,Any}()
     blocks = read(io, BLOCK_SIZE * nblocks)
@@ -18,11 +12,6 @@ function read_header_blocks(io::IO, nblocks::Integer)
     header
 end
 
-"""
-    read_image(io::IO, header::AbstractDict)
-
-Reads image from `io` using info from previously parsed current sfrm file header.
-"""
 function read_image(io::IO, header::AbstractDict)
     format = header["FORMAT"]
     rows = header["NROWS"][1]
@@ -74,10 +63,3 @@ function load(f::File{format"SFRM"})
         load(s.io)
     end
 end
-
-@doc """
-    load(file::Union{IO,AbstractString,File{format"SFRM"}})
-
-Fully reads and parses sfrm file and returns its `SiemensFrame`.
-""" load
-

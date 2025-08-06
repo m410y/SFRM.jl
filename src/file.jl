@@ -1,11 +1,5 @@
 export SiemensFrame
 
-"""
-    SiemensFrame
-
-Contains uncompressed image array, and header fields.
-Also supports addressing frequently used header entries as properties.
-"""
 struct SiemensFrame
     image::AbstractArray
     header::AbstractDict

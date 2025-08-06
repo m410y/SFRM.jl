@@ -168,13 +168,3 @@ function save(f::File{format"SFRM"}, sfrm::SiemensFrame)
         s.filename
     end
 end
-
-@doc """
-    save(file::Union{IO,AbstractString,File{format"SFRM"}}, sfrm::SiemensFrame)
-
-Saves `sfrm` to `file`. Currently always converts it to version 100.
-FILENAM is written file name.
-CREATED is cuurent datetime.
-Created by SFRM.jl will be appended to TITLE.
-"""
-

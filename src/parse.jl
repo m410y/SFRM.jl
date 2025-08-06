@@ -1,8 +1,3 @@
-"""
-    isunknown(line::AbstractString)
-
-Returns if data supposed to be in `line` is unknown.
-"""
 function isunknown(line::AbstractString)
     any(strip(line) .== [
         "Unknown",
@@ -12,11 +7,6 @@ function isunknown(line::AbstractString)
     ])
 end
 
-"""
-    tryparse_number(token::AbstractString)
-
-Tries to parse `token` as `Int` and `Float64` and returns `token` string if unsucceed.
-"""
 function tryparse_number(token::AbstractString)
     parsed = tryparse(Int, token)
     !isnothing(parsed) && return parsed
@@ -25,11 +15,6 @@ function tryparse_number(token::AbstractString)
     token
 end
 
-"""
-    parse_default(str::AbstractString)
-
-Applies `tryparse_number` to all separate elemnts of `str` and combine them in intuitively in arrays.
-"""
 function parse_default(str::AbstractString)
     parsed = tryparse_number.(split(str))
 
@@ -43,11 +28,6 @@ function parse_default(str::AbstractString)
     all(typeof.(parsed) .<: Float64) ? Vector{Float64}(parsed) : parsed
 end
 
-"""
-    parse_created(line::AbstractString)
-
-Parses sfrm-specific datetime format.
-"""
 function parse_created(line::AbstractString)
     date, time = split(line)
     DateTime(Date(date, dateformat"d-u-yyyy"), Time(time, dateformat"HH:MM:SS"))
@@ -67,11 +47,6 @@ function parse_cfr(line::AbstractString)
     parse_default.(m.captures)
 end
 
-"""
-    SPECIFIC_PARSERS
-
-Dictionary contains parser functions for specific keys in sfrm file.
-"""
 const SPECIFIC_PARSERS =
     Dict("CREATED" => parse_created, "LOWTEMP" => parse_lowtemp, "CFR" => parse_cfr)
 
