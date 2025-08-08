@@ -13,7 +13,6 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     if get(hdr, "VERSION", version) != version
         @warn "Version will be converted to $(version)"
     end
-    flat = vec(reverse(transpose(sfrm.image), dims = 2))
     comment = get(hdr, "TITLE", "")
     comment *= " Created by SFRM.jl"
     if length(comment) < 8 * 72
@@ -30,7 +29,7 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
         get(hdr, "ESDCELL", [0.02, 0.02, 0.02, rad2deg(0.02), rad2deg(0.02), rad2deg(0.02)])
     nexp = get(hdr, "NEXP", [2, 0, 0, 0, 0])
     comp = compress_100(
-        flat,
+        vec(reverse(sfrm.image, dims = 2)),
         dtype = unsigned_integer(npixelb[1]),
         utype = signed_integer(npixelb[2]),
         baseline = nexp[3],
@@ -72,8 +71,8 @@ function save(io::IO, sfrm::SiemensFrame; filename = sfrm.header["FILENAM"])
     @printf io "ANGLES :%-17f %-17f %-17f %-17f " get(hdr, "ANGLES", zeros(4))...
     @printf io "NOVER64:%-23d %-23d %-23d " 0 0 0
     @printf io "NPIXELB:%-35d %-35d " sizeof(eltype(comp.data)) sizeof(eltype(comp.under))
-    @printf io "NROWS  :%-35d %-35d " size(sfrm.image, 1) 1
-    @printf io "NCOLS  :%-35d %-35d " size(sfrm.image, 2) 1
+    @printf io "NROWS  :%-35d %-35d " size(sfrm.image, 2) 1
+    @printf io "NCOLS  :%-35d %-35d " size(sfrm.image, 1) 1
     @printf io "WORDORD:%-72d" 0
     @printf io "LONGORD:%-72d" 0
     @printf io "TARGET :%-72s" get(hdr, "TARGET", "?")

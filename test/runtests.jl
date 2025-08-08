@@ -24,8 +24,8 @@ end
     fname = "mo_LaB6_2_m8_m3_friedel_129f_MP96p95_03_0001.sfrm"
     angles = [263.05, 39.10001, 10.9998, 54.7112]
     sfrm = SFRM.load(joinpath(frames_folder, fname))
-    @test sfrm.image[168, 166] == 91
-    @test sfrm.image[841, 238] == 4520
+    @test sfrm.image[166, 168] == 91
+    @test sfrm.image[238, 841] == 4520
     @test sfrm.type == "SCAN FRAME"
     @test sfrm.filename == fname
     @test sfrm.created == DateTime(2024, 02, 23, 10, 24, 01)
