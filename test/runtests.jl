@@ -1,7 +1,6 @@
 using Test
 using SFRM
 using Dates
-using OffsetArrays
 
 include("Aqua.jl")
 
@@ -25,8 +24,8 @@ end
     fname = "mo_LaB6_2_m8_m3_friedel_129f_MP96p95_03_0001.sfrm"
     angles = [263.05, 39.10001, 10.9998, 54.7112]
     sfrm = SFRM.load(joinpath(frames_folder, fname))
-    @test sfrm.image[167, 165] == 91
-    @test sfrm.image[840, 237] == 4520
+    @test sfrm.image[168, 166] == 91
+    @test sfrm.image[841, 238] == 4520
     @test sfrm.type == "SCAN FRAME"
     @test sfrm.filename == fname
     @test sfrm.created == DateTime(2024, 02, 23, 10, 24, 01)
@@ -79,7 +78,7 @@ end
 end
 
 @testset "empty header" begin
-    img = OffsetArrays.Origin(0)(rand(Int32, 2048, 1024))
+    img = rand(Int32, 2048, 1024)
     img[img .< typemin(Int8)] .= 0
     sfrm = SiemensFrame(img, Dict())
     path = joinpath(tempdir(), "empty_header.sfrm")

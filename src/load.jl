@@ -41,7 +41,7 @@ function read_image(io::IO, header::AbstractDict)
             image = image * slope + offset
         end
     end
-    transpose(reverse!(reshape(image, cols, rows), dims = 2))
+    permutedims(reverse!(reshape(image, cols, rows), dims = 2), (2, 1))
 end
 
 function load(io::IO)
